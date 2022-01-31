@@ -20,26 +20,40 @@ class User < ApplicationRecord
 
 
 
-   def get_profile_image(size)
+  def get_profile_image(size)
     unless profile_image.attached?
       file_path = Rails.root.join('app/assets/images/no_image.jpg')
       profile_image.attach(io: File.open(file_path), filename: 'default-image.jpg', content_type: 'image/jpeg')
     end
     profile_image.variant(resize: size).processed
-   end
+  end
 
    # フォローしたときの処理
-   def follow(user_id)
+  def follow(user_id)
    relationships.create(followed_id: user_id)
-   end
+  end
    # フォローを外すときの処理
-   def unfollow(user_id)
+  def unfollow(user_id)
    relationships.find_by(followed_id: user_id).destroy
-   end
+  end
    # フォローしているか判定
-   def following?(user)
+  def following?(user)
   followings.include?(user)
-   end
+  end
+
+  def self.looks(search, word)
+      if search == "perfect_match"
+      @user = User.where("name LIKE?", "#{word}")
+      elsif search == "forward_match"
+      @user = User.where("name LIKE?","#{word}%")
+      elsif search == "backward_match"
+      @user = User.where("name LIKE?","%#{word}")
+      elsif search == "partial_match"
+      @user = User.where("name LIKE?","%#{word}%")
+      else
+      @user = User.all
+      end
+  end
 
 
 end
